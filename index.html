@@ -25,6 +25,7 @@
   <div class="form-box">
     <h3>Create / Edit License</h3>
     <input type="hidden" id="editId">
+    <input type="text" id="userName" placeholder="Enter User Name" />
     <input type="text" id="licenseKey" placeholder="Enter License Key" />
     <input type="number" id="deviceLimit" placeholder="Device Limit" min="1" />
     <select id="statusSelect">
@@ -38,6 +39,7 @@
   <table>
     <thead>
       <tr>
+        <th>User Name</th>
         <th>License Key</th>
         <th>Status</th>
         <th>Device Limit</th>
@@ -70,15 +72,16 @@
     const blockSound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQgAAAAA");
 
     // =========================
-    // Save / Create License (with devices array)
+    // Save / Create License (with devices array and userName)
     // =========================
     window.saveLicense = async function() {
+      const userName = document.getElementById("userName").value.trim();
       const key = document.getElementById("licenseKey").value.trim();
       const limit = parseInt(document.getElementById("deviceLimit").value.trim());
       const status = document.getElementById("statusSelect").value;
       const editId = document.getElementById("editId").value;
 
-      if(!key || !limit) { alert("Please enter all fields!"); return; }
+      if(!userName || !key || !limit) { alert("Please enter all fields!"); return; }
 
       if(editId) {
         // Preserve devices array and activeDevices count
@@ -90,6 +93,7 @@
           activeDevices = devices.length;
         }
         await update(ref(db, "licenses/" + editId), {
+          userName: userName,
           licenseKey: key,
           deviceLimit: limit,
           status: status,
@@ -100,6 +104,7 @@
       } else {
         const newRef = push(licensesRef);
         await set(newRef, {
+          userName: userName,
           licenseKey: key,
           deviceLimit: limit,
           status: status,
@@ -108,6 +113,7 @@
         });
       }
 
+      document.getElementById("userName").value = "";
       document.getElementById("licenseKey").value = "";
       document.getElementById("deviceLimit").value = "";
       document.getElementById("statusSelect").value = "active";
@@ -123,6 +129,7 @@
         const id = childSnap.key;
         const row = document.createElement("tr");
         row.innerHTML = `
+          <td>${data.userName || "-"}</td>
           <td>${data.licenseKey}</td>
           <td class="${data.status === "blocked" ? "blocked" : "active"}">${data.status}</td>
           <td>${data.deviceLimit}</td>
@@ -141,6 +148,7 @@
       const snap = await get(child(ref(db), "licenses/" + id));
       if(snap.exists()) {
         const data = snap.val();
+        document.getElementById("userName").value = data.userName || "";
         document.getElementById("licenseKey").value = data.licenseKey;
         document.getElementById("deviceLimit").value = data.deviceLimit;
         document.getElementById("statusSelect").value = data.status;
