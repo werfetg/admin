@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #0f172a; color: white; padding: 20px; overflow: hidden; position: relative; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: white; padding: 20px; margin: 0; overflow-y: auto; }
     h2 { color: #38bdf8; }
     .form-box { background: rgba(30,41,59,0.85); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     input, button, select { padding: 8px; margin: 5px 0; border-radius: 6px; border: none; }
@@ -72,7 +72,7 @@
     const blockSound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQgAAAAA");
 
     // =========================
-    // Save / Create License (with devices array and userName)
+    // Save / Create License
     // =========================
     window.saveLicense = async function() {
       const userName = document.getElementById("userName").value.trim();
@@ -84,7 +84,6 @@
       if(!userName || !key || !limit) { alert("Please enter all fields!"); return; }
 
       if(editId) {
-        // Preserve devices array and activeDevices count
         const snap = await get(child(ref(db), "licenses/" + editId));
         let devices = [], activeDevices = 0;
         if(snap.exists()) {
